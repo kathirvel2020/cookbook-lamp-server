@@ -25,6 +25,8 @@ node.default['mariadb']['server_root_password'] = db_password
 # Enable these to overwrite the existing root password.
 # node.default['mariadb']['allow_root_pass_change'] = true
 
+include_recipe "ca-certificates::default"
+
 include_recipe "mariadb::default"
 
 template '/root/.my.cnf' do
