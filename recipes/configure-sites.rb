@@ -17,23 +17,9 @@ directory "/var/www/vhosts" do
   action :create
 end
 
-sites = ['chicago']
-
 sites.each do |siteName|
   # Get the users' real data from the vault.
-  # fullSite = chef_vault_item('sites', siteName)
-
-  fullSite = {
-    'database-name' =>     'chicago',
-    'database-password' => 'ogjvNJ8KBZ4e',
-    'database-username' => 'chicago',
-    'dev-url' =>           'devchicago.mymadison.io',
-    'id' =>                'madison-chicago',
-    'name' =>              'Madison Chicago',
-    'shortname' =>         'chicago',
-    'url' =>               'chicago.mymadison.io',
-    'type' =>              'standard'
-  }
+  fullSite = chef_vault_item('sites', siteName)
 
   # Make a directory for the site
   directory "/var/www/vhosts/#{siteName}" do
