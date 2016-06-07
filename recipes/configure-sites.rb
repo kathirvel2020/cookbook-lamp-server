@@ -23,6 +23,11 @@ directory "/var/www/vhosts" do
   action :create
 end
 
+connection_info = {
+  :host => '127.0.0.1',
+  :username => 'root',
+}
+
 # Read our root database password.
 ruby_block 'get_database_password' do
   only_if { File.exist?('/root/.my.cnf') }
@@ -34,6 +39,8 @@ ruby_block 'get_database_password' do
         break;
       }
     end
+
+    connection_info[:password] = node.default['mariadb']['server_root_password']
   end
 end
 
@@ -86,19 +93,35 @@ sites.each do |siteName|
     end
 
     # MySQL setup. Not all sites get MySQL.
+
+    # Setup database.
     if ['madison', 'wordpress'].include? fullSite['type']
       # mysql2_chef_gem should have been installed in the install-database step.
       mysql_database siteName do
-        connection(
-          :host     => '127.0.0.1',
-          :username => 'root',
-          :password => node.default['mariadb']['server_root_password']
-        )
+        connection connection_info
         action :create
       end
 
-      # TODO Setup user.
-      # TODO Grant access to database.
+      # Setup user.
+      databasePassword = random_password
+
+      mysql_database_user siteName do
+        connection connection_info
+        password databasePassword
+        action :create
+      end
+
+      # puts "USER DATABASE PASSWORD #{databasePassword}" #DEBUG
+
+      # Grant access to database.
+      mysql_database_user siteName do
+        connection connection_info
+        password databasePassword
+        database_name siteName
+        action :grant
+      end
+
+      # TODO Write config file for app.
     end
 
   end
