@@ -1,0 +1,29 @@
+<VirtualHost *:80>
+  ServerName <%= @params[:server_name] %>
+  DocumentRoot <%= @params[:docroot] %>/client/build
+  Alias /api <%= @params[:docroot] %>/server/public/index.php/api
+
+  <Directory <%= @params[:docroot] %>/server/public>
+    Options Indexes FollowSymLinks MultiViews ExecCGI
+    DirectoryIndex index.php
+    AllowOverride all
+
+    Order allow,deny
+    Allow from all
+  </Directory>
+
+  <Directory <%= @params[:docroot] %>/client/build>
+    Options Indexes FollowSymLinks
+    DirectoryIndex index.html
+    AllowOverride all
+    Order allow,deny
+    Allow from all
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule . /index.html [L]
+  </Directory>
+
+  ErrorLog /var/log/httpd/<%= @params[:name] %>-error.log
+  CustomLog /var/log/httpd/<%= @params[:name] %>-access.log combined
+</VirtualHost>
