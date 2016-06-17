@@ -10,8 +10,6 @@ sites = data_bag('sites').select do |key|
   !key.end_with?('_keys')
 end
 
-# sites = ['chicago'] #DEBUG
-
 apacheOwner = 'deploy'
 apacheGroup = 'staff'
 
@@ -48,21 +46,8 @@ sites.each do |siteName|
   # Get the users' real data from the vault.
   fullSite = chef_vault_item('sites', siteName)
 
-  # fullSite = { #DEBUG
-  #   'database-name' => 'chicago',
-  #   'database-password' => 'ogjvNJ8KBZ4e',
-  #   'database-username' => 'chicago',
-  #   'dev-url' => 'devchicago.mymadison.io',
-  #   'id' => 'madison-chicago',
-  #   'name' =>  'Madison Chicago',
-  #   'shortname' => 'chicago',
-  #   'url' => 'chicago.mymadison.io',
-  #   'type' => 'madison',
-  #   'servers' => ['Madison-Dev-1','default-ubuntu-1404']
-  # }
-
   # If the node is one this site belongs to, set it up on the box.
-  if fullSite['servers'].include? node.name
+  if fullSite['servers'] and fullSite['servers'].include? node.name
 
     # Apache setup. All sites get Apache.
 
@@ -102,28 +87,56 @@ sites.each do |siteName|
         action :create
       end
 
-      # Setup user.
-      databasePassword = random_password
+      # Setup user & database.
+      databasePassword = fullSite['database_password'] || random_password
+      databaseUser = fullSite['database_username'] || siteName
+      databaseName = fullSite['database_name'] || siteName
 
-      mysql_database_user siteName do
+      mysql_database_user databaseUser do
         connection connection_info
         password databasePassword
         action :create
       end
 
-      # puts "USER DATABASE PASSWORD #{databasePassword}" #DEBUG
+      puts "USER DATABASE PASSWORD #{databasePassword}" #DEBUG
 
       # Grant access to database.
       mysql_database_user siteName do
         connection connection_info
         password databasePassword
-        database_name siteName
+        database_name databaseName
         action :grant
       end
 
-      # TODO Write config file for app.
+      # Create a directory for shared data for releases.
+      directory "/var/www/vhosts/#{siteName}/shared/" do
+        owner 'www'
+        group 'staff'
+        mode '0775'
+        action :create
+      end
+
+      # Write config file for app.
+      if fullSite['type'] == 'madison'
+        template "/var/www/vhosts/#{siteName}/shared/.env" do
+          action :create_if_missing
+          source 'site/madison/.env.erb'
+          owner 'www'
+          group 'staff'
+          mode '0664'
+          variables fullSite.to_hash
+        end
+      elsif fullSite['type'] == 'wordpress'
+        template "/var/www/vhosts/#{siteName}/shared/wp-config.php" do
+          action :create_if_missing
+          source 'site/madison/wp-config.php.erb'
+          owner 'www'
+          group 'staff'
+          mode '0664'
+          variables fullSite.to_hash
+        end
+      end
+
     end
-
   end
-
 end
