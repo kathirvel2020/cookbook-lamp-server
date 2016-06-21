@@ -1,0 +1,18 @@
+{
+  "name": "Madison Example",
+  "shortname": "madisonex",
+  "url": "example.mymadison.io",
+  "servers": ["Madison-Dev-1","default-ubuntu-1404","default-centos-67"],
+  "type": "madison",
+  "database_name": "madisonex",
+  "database_password": "asdjfklz",
+  "database_username": "madisonex",
+  "mail_driver": "smtp",
+  "mail_host": "mailtrap_io",
+  "mail_port": "2525",
+  "mail_username": "null",
+  "mail_password": "null",
+  "mail_encryption": "null",
+  "mail_from_address": "user@example.com",
+  "mail_from_name": "user"
+}

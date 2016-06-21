@@ -1,0 +1,9 @@
+{
+  "password": "$6$crfttNFq$sVihrj9MZCnomhtcNflWlycVdENrJybd5xxJ2lgTVCzf.o4Lfcw.5mg8PN.h5OAoDSiQzuwWIrhHSXQm.ZAup0",
+  "ssh_keys": [
+    "ssh-rsa YourSSHPublicKeyHere"
+  ],
+  "groups": ["staff"],
+  "shell": "/bin/bash",
+  "comment": "Test User"
+}
