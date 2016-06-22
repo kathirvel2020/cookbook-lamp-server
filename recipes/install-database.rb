@@ -12,6 +12,7 @@ include_recipe "mariadb::client"
 
 root_db_password = random_password
 node.default['mariadb']['server_root_password'] = root_db_password
+node.default['mariadb']['client']['development_files'] = true
 
 template '/root/.my.cnf' do
   # Change the action to :create to overwrite the root password.
