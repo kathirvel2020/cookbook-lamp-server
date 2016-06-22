@@ -8,6 +8,7 @@ version          '0.1.16'
 
 depends 'base-server'
 depends 'chef-vault'
+depends 'rvm'
 depends 'mariadb'
 depends 'mysql2_chef_gem'
 depends 'database'
