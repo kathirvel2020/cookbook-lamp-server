@@ -33,7 +33,7 @@ We run MariaDB instead of MySQL.  Unfortunately this causes problem
 with the default `php` cookbook, which is hardcoded to use MySQL.
 We get around this by using [our own fork of the `php` cookbook](https://github.com/opengovfoundation/cookbook-php)
 
-# TODO
+## TODO
 
 Split out the Madison and Wordpress specific code into their own cookbooks.
 
