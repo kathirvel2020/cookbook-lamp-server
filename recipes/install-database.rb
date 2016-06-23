@@ -7,12 +7,12 @@ node.default['mariadb']['use_default_repository'] = true
 
 include_recipe 'ca-certificates::default'
 
-include_recipe 'mariadb::default'
-include_recipe 'mariadb::client'
-
 root_db_password = random_password
 node.default['mariadb']['server_root_password'] = root_db_password
 node.default['mariadb']['client']['development_files'] = true
+
+include_recipe 'mariadb::default'
+include_recipe 'mariadb::client'
 
 template '/root/.my.cnf' do
   # Change the action to :create to overwrite the root password.
