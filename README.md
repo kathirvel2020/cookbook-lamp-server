@@ -1,13 +1,29 @@
 # lamp-server-cookbook
 
-Basic Linux-Apache-MySQL-PHP server setup.
+Basic LAMP server setup.
 
-Sets up our server to run a standard LAMP stack setup.
+Sets up our server to run a standard Linux + Apache + MariaDB + PHP stack setup.
+Also installs ruby and node as we use these in our asset building.
 
 ## Supported Platforms
 
 * RHEL/Fedora/CentOS
 * Debian/Ubuntu
+
+## Description
+
+This will install the following:
+
+* Apache 2 (2.4 or 2.2 depending on OS)
+* PHP 5.6.22
+* MariaDB 10.0
+* Ruby 2.3.0
+* Node 4.4.5
+
+It will also create a `www` user and `staff` group to run Apache as, to be
+consistent across platforms for deployment.  It is strongly recommended that
+you deploy to this server using a user in the `staff` group, for permissions to
+be consistent.
 
 ## Attributes
 
