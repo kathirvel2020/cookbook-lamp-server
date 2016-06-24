@@ -10,13 +10,13 @@ sites = data_bag('sites').select do |key|
   !key.end_with?('_keys')
 end
 
-apacheOwner = 'deploy'
-apacheGroup = 'staff'
+apache_owner = 'deploy'
+apache_group = 'staff'
 
 # Make a directory for vhosts.
 directory "/var/www/vhosts" do
-  owner apacheOwner
-  group apacheGroup
+  owner apache_owner
+  group apache_group
   mode '0775'
   action :create
 end
@@ -42,74 +42,72 @@ ruby_block 'get_database_password' do
   end
 end
 
-sites.each do |siteName|
+sites.each do |site_name|
   # Get the users' real data from the vault.
-  fullSite = chef_vault_item('sites', siteName)
+  full_site = chef_vault_item('sites', site_name)
 
   # If the node is one this site belongs to, set it up on the box.
-  if fullSite['servers'] and fullSite['servers'].include? node.name
+  if full_site['servers'] and full_site['servers'].include? node.name
 
     # Apache setup. All sites get Apache.
 
     # Make a directory for the site.
-    directory "/var/www/vhosts/#{siteName}" do
-      owner apacheOwner
-      group apacheGroup
+    directory "/var/www/vhosts/#{site_name}" do
+      owner apache_owner
+      group apache_group
       mode '0775'
       action :create
     end
 
-    templateExists = has_source?("apache/#{fullSite['type']}.conf.erb",
+    templateExists = has_source?("apache/#{full_site['type']}.conf.erb",
       :templates, 'lamp-server')
 
     if templateExists
-      siteTemplate = "apache/#{fullSite['type']}.conf.erb"
-      puts "Apache Template: Using #{fullSite['type']}"
+      site_template = "apache/#{full_site['type']}.conf.erb"
+      puts "Apache Template: Using #{full_site['type']}"
     else
-      siteTemplate = 'apache/standard.conf.erb'
+      site_template = 'apache/standard.conf.erb'
       puts "Apache Template: Using default"
     end
 
-    web_app siteName do
-      server_name fullSite['url']
-      server_aliases fullSite['aliases']
-      docroot "/var/www/vhosts/#{siteName}"
-      template siteTemplate
+    web_app site_name do
+      server_name full_site['url']
+      server_aliases full_site['aliases']
+      docroot "/var/www/vhosts/#{site_name}"
+      template site_template
     end
 
     # MySQL setup. Not all sites get MySQL.
 
     # Setup database.
-    if ['madison', 'wordpress'].include? fullSite['type']
+    if ['madison', 'wordpress'].include? full_site['type']
       # mysql2_chef_gem should have been installed in the install-database step.
-      mysql_database siteName do
+      mysql_database site_name do
         connection connection_info
         action :create
       end
 
       # Setup user & database.
-      databasePassword = fullSite['database_password'] || random_password
-      databaseUser = fullSite['database_username'] || siteName
-      databaseName = fullSite['database_name'] || siteName
+      database_password = full_site['database_password'] || random_password
+      database_user = full_site['database_username'] || site_name
+      database_name = full_site['database_name'] || site_name
 
-      mysql_database_user databaseUser do
+      mysql_database_user database_user do
         connection connection_info
-        password databasePassword
+        password database_password
         action :create
       end
 
-      puts "USER DATABASE PASSWORD #{databasePassword}" #DEBUG
-
       # Grant access to database.
-      mysql_database_user siteName do
+      mysql_database_user site_name do
         connection connection_info
-        password databasePassword
-        database_name databaseName
+        password database_password
+        database_name database_name
         action :grant
       end
 
       # Create a directory for shared data for releases.
-      directory "/var/www/vhosts/#{siteName}/shared/" do
+      directory "/var/www/vhosts/#{site_name}/shared/" do
         owner 'www'
         group 'staff'
         mode '0775'
@@ -117,23 +115,23 @@ sites.each do |siteName|
       end
 
       # Write config file for app.
-      if fullSite['type'] == 'madison'
-        template "/var/www/vhosts/#{siteName}/shared/.env" do
+      if full_site['type'] == 'madison'
+        template "/var/www/vhosts/#{site_name}/shared/.env" do
           action :create_if_missing
           source 'site/madison/.env.erb'
           owner 'www'
           group 'staff'
           mode '0664'
-          variables fullSite.to_hash
+          variables full_site.to_hash
         end
-      elsif fullSite['type'] == 'wordpress'
-        template "/var/www/vhosts/#{siteName}/shared/wp-config.php" do
+      elsif full_site['type'] == 'wordpress'
+        template "/var/www/vhosts/#{site_name}/shared/wp-config.php" do
           action :create_if_missing
           source 'site/madison/wp-config.php.erb'
           owner 'www'
           group 'staff'
           mode '0664'
-          variables fullSite.to_hash
+          variables full_site.to_hash
         end
       end
 
