@@ -116,7 +116,7 @@ sites.each do |site_name|
 
       # Write config file for app.
       if full_site['type'] == 'madison'
-        template "/var/www/vhosts/#{site_name}/shared/.env" do
+        template "/var/www/vhosts/#{site_name}/shared/server/.env" do
           action :create_if_missing
           source 'site/madison/.env.erb'
           owner 'www'
