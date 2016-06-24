@@ -1,9 +1,9 @@
 <VirtualHost *:80>
   ServerName <%= @params[:server_name] %>
-  DocumentRoot <%= @params[:docroot] %>/client/build
-  Alias /api <%= @params[:docroot] %>/server/public/index.php/api
+  DocumentRoot <%= @params[:docroot] %>/current/client/build
+  Alias /api <%= @params[:docroot] %>/current/server/public/index.php/api
 
-  <Directory <%= @params[:docroot] %>/server/public>
+  <Directory <%= @params[:docroot] %>/current/server/public>
     Options Indexes FollowSymLinks MultiViews ExecCGI
     DirectoryIndex index.php
     AllowOverride all
@@ -12,7 +12,7 @@
     Allow from all
   </Directory>
 
-  <Directory <%= @params[:docroot] %>/client/build>
+  <Directory <%= @params[:docroot] %>/current/client/build>
     Options Indexes FollowSymLinks
     DirectoryIndex index.html
     AllowOverride all
