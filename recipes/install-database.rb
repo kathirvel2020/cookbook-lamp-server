@@ -22,18 +22,3 @@ template '/root/.my.cnf' do
   group 'root'
   mode '0600'
 end
-
-# We use the mysql2_chef_gem to create databases later.
-
-# We need ruby first.
-node.default['rvm']['install_rubies'] = 'true'
-node.default['rvm']['rubies'] = ['2.3.0']
-node.default['rvm']['default_ruby'] = '2.3.0'
-
-include_recipe 'rvm::default'
-include_recipe 'rvm::system'
-
-mysql2_chef_gem 'default' do
-  provider Chef::Provider::Mysql2ChefGem::Mariadb
-  action :install
-end
