@@ -8,16 +8,28 @@
     DirectoryIndex index.php
     AllowOverride all
 
-    Order allow,deny
-    Allow from all
+    <IfVersion >= 2.4>
+      Require all granted
+    </IfVersion>
+    <IfVersion < 2.4>
+      Order allow,deny
+      Allow from all
+    </IfVersion>
   </Directory>
 
   <Directory <%= @params[:docroot] %>/current/client/build>
     Options Indexes FollowSymLinks
     DirectoryIndex index.html
     AllowOverride all
-    Order allow,deny
-    Allow from all
+
+    <IfVersion >= 2.4>
+      Require all granted
+    </IfVersion>
+    <IfVersion < 2.4>
+      Order allow,deny
+      Allow from all
+    </IfVersion>
+
     RewriteEngine On
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
