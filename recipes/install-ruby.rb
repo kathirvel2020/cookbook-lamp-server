@@ -23,8 +23,28 @@ mysql2_chef_gem 'default' do
   action :install
 end
 
+# Gems used by the Chef ruby instance.
+
 # We need to fix json-jwt to an old version for letsencrypt.
-#
-chef_gem 'json-jwt' do
-  version '1.5.2'
+chef_gems = {
+  'json-jwt' =>'1.5.2'
+}
+
+chef_gems.each do |name, version|
+  chef_gem name do
+    version version
+  end
+end
+
+# Gems used by the rest of the server.
+server_gems = {
+  'bundler' => '1.12.5',
+  'sass' => '3.4.21',
+  'compass' => '1.0.3'
+}
+
+server_gems.each do |name, version|
+  gem_package name do
+    version version
+  end
 end
