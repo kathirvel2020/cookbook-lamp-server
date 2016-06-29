@@ -30,6 +30,16 @@ node.default['rvm']['install_rubies'] = 'true'
 node.default['rvm']['rubies'] = ['2.3.0']
 node.default['rvm']['default_ruby'] = '2.3.0'
 
+# Also include ruby for the deploy user, needed for build process
+node.default['rvm']['user_installs'] = [
+  {
+    'user' => 'deploy',
+    'install_rubies' => 'true',
+    'rubies' => ['2.3.0'],
+    'default_ruby' => '2.3.0'
+  }
+]
+
 include_recipe 'rvm::default'
 include_recipe 'rvm::system'
 
