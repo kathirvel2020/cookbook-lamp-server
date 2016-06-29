@@ -129,7 +129,7 @@ sites.each do |site_name|
           owner 'www'
           group 'staff'
           mode '0664'
-          variables full_site.to_hash
+          variables :params => full_site.to_hash
         end
       elsif full_site['type'] == 'wordpress'
         template "/var/www/vhosts/#{site_name}/shared/wp-config.php" do
@@ -138,7 +138,7 @@ sites.each do |site_name|
           owner 'www'
           group 'staff'
           mode '0664'
-          variables full_site.to_hash
+          variables :params => full_site.to_hash
         end
       end
 
