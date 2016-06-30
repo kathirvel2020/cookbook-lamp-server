@@ -23,3 +23,9 @@ include_recipe 'apache2'
 include_recipe 'apache2::mod_rewrite'
 include_recipe 'apache2::mod_php5'
 include_recipe 'apache2::mod_ssl'
+
+# Disable threaded mpm
+apache_module 'mpm_prefork'
+apache_module 'mpm_event' do
+  enable false
+end
