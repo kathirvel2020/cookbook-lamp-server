@@ -44,7 +44,7 @@ server_gems = {
 }
 
 server_gems.each do |name, version|
-  gem_package name do
+  rvm_gem name do
     version version
   end
 end
