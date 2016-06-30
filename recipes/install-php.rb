@@ -11,4 +11,7 @@ puts "PHP Packages"
 node.default['php']['packages'].push('php5-mcrypt')
 node.default['php']['packages'].push('php5-mysql')
 
+package 'php5-mcrypt'
+package 'php5-mysql'
+
 include_recipe 'php'
