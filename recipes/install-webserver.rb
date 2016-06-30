@@ -16,9 +16,6 @@ user 'www' do
   system true
 end
 
-node.default['apache']['user'] = 'www'
-node.default['apache']['group'] = 'staff'
-
 include_recipe 'apache2'
 include_recipe 'apache2::mod_rewrite'
 include_recipe 'apache2::mod_php5'
