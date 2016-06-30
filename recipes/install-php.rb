@@ -10,8 +10,10 @@ node.default['php']['checksum'] = '4ce0f58c3842332c4e3bb2ec1c936c6817294273abaa3
 puts "PHP Packages"
 node.default['php']['packages'].push('php5-mcrypt')
 node.default['php']['packages'].push('php5-mysql')
+node.default['php']['packages'].push('php5-curl')
 
 package 'php5-mcrypt'
 package 'php5-mysql'
+package 'php5-curl'
 
 include_recipe 'php'
