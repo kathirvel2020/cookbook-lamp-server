@@ -2,13 +2,19 @@ package "php-pear" do
   action :install
 end
 
-# Install PHP
-node.default['php']['packages'].push('php5-mcrypt')
-node.default['php']['packages'].push('php5-mysql')
-node.default['php']['packages'].push('php5-curl')
+include_recipe 'php::default'
 
-package 'php5-mcrypt'
-package 'php5-mysql'
-package 'php5-curl'
+# Add necessary PHP packages.
+case node['platform_family']
+when 'rhel', 'fedora'
+  node.default['php']['packages'].push('php-mcrypt')
+  node.default['php']['packages'].push('php-mysql')
+  node.default['php']['packages'].push('php-curl')
 
-include_recipe 'php'
+when 'debian'
+  node.default['php']['packages'].push('php5-mcrypt')
+  node.default['php']['packages'].push('php5-mysql')
+  node.default['php']['packages'].push('php5-curl')
+end
+
+include_recipe 'php::package'
