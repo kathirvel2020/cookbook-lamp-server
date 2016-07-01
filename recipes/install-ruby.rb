@@ -12,6 +12,7 @@ end
 
 # We need to fix json-jwt to an old version for letsencrypt.
 chef_gems = {
+  'activesupport' =>'4.2.6',
   'json-jwt' =>'1.5.2'
 }
 
