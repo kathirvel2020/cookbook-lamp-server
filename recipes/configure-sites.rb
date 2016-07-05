@@ -86,7 +86,7 @@ sites.each do |site_name|
     # Our deployment path changes to add releases if we have rollback.
     if !full_site['deploy_path']
       if full_site['uses_rollback']
-        full_site['deploy_path'] = "/var/www/vhosts/#{site_name}/releases/current"
+        full_site['deploy_path'] = "/var/www/vhosts/#{site_name}/current"
         full_site['shared_path'] = "/var/www/vhosts/#{site_name}/shared"
       else
         full_site['deploy_path'] = "/var/www/vhosts/#{site_name}"
@@ -182,15 +182,28 @@ sites.each do |site_name|
       # store the certs.  We create an "init" folder and symlink it to current.
       if full_site['uses_rollback']
 
-        directory "/var/www/vhosts/#{site_name}/releases/init" do
-          owner apache_owner
-          group apache_group
-          mode '0775'
-          action :create
-          not_if { ::File.directory?(full_site['deploy_path']) }
+        if !(::File.directory?(full_site['deploy_path']))
+          directory "/var/www/vhosts/#{site_name}/releases/init/client/build" do
+            owner apache_owner
+            group apache_group
+            recursive true
+            mode '0775'
+            action :create
+          end
+
+          execute "Fix ownere and group on folders" do
+            command "chown -R #{apache_owner}:#{apache_group} /var/www/vhosts/#{site_name}/releases/init"
+          end
+
+          execute "Fix permissions on folders" do
+            command "chmod -Rf 775 /var/www/vhosts/#{site_name}/releases/init"
+          end
         end
 
-        link "/var/www/vhosts/#{site_name}/releases/current" do
+
+        link "/var/www/vhosts/#{site_name}/current" do
+          owner apache_owner
+          group apache_group
           to "/var/www/vhosts/#{site_name}/releases/init"
           not_if { ::File.directory?(full_site['deploy_path']) }
         end
@@ -201,7 +214,9 @@ sites.each do |site_name|
         crt "/etc/ssl/#{site_name}.crt"
         key "/etc/ssl/#{site_name}.key"
         method 'http'
-        wwwroot full_site['deploy_path']
+        owner apache_owner
+        group apache_group
+        wwwroot "#{full_site['deploy_path']}/client/build"
       end
 
     end
