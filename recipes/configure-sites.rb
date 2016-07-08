@@ -108,22 +108,23 @@ sites.each do |site_name|
     web_app site_name do
       server_name full_site['url']
       server_aliases full_site['aliases']
+      ssl full_site['ssl']
       docroot "/var/www/vhosts/#{site_name}"
       template site_template
     end
 
     # MySQL setup.
 
-    # mysql2_chef_gem should have been installed in the install-database step.
-    mysql_database site_name do
-      connection connection_info
-      action :create
-    end
-
     # Setup user & database.
     database_password = full_site['database_password'] || random_password
     database_user = full_site['database_username'] || site_name
     database_name = full_site['database_name'] || site_name
+
+    # mysql2_chef_gem should have been installed in the install-database step.
+    mysql_database database_name do
+      connection connection_info
+      action :create
+    end
 
     mysql_database_user database_user do
       connection connection_info
@@ -134,6 +135,7 @@ sites.each do |site_name|
     # Grant access to database.
     mysql_database_user site_name do
       connection connection_info
+      username database_user
       password database_password
       database_name database_name
       action :grant
@@ -173,39 +175,28 @@ sites.each do |site_name|
     if full_site['ssl']
 
       # DEBUG staging endpoint
-      node.default['letsencrypt']['endpoint'] = 'https://acme-staging.api.letsencrypt.org'
+      node.default['letsencrypt']['endpoint'] = 'https://acme-v01.api.letsencrypt.org'
       node.default['letsencrypt']['contact'] = 'mailto:bill@opengovfoundation.org'
 
       include_recipe 'letsencrypt::default'
 
-      # If this is a site that has rollbacks, we need a temporary place to
-      # store the certs.  We create an "init" folder and symlink it to current.
-      if full_site['uses_rollback']
+      directory "/var/www/vhosts/#{site_name}/letsencrypt" do
+        owner apache_owner
+        group apache_group
+        recursive true
+        mode '0775'
+        action :create
+      end
 
-        if !(::File.directory?(full_site['deploy_path']))
-          directory "/var/www/vhosts/#{site_name}/releases/init/client/build" do
-            owner apache_owner
-            group apache_group
-            recursive true
-            mode '0775'
-            action :create
-          end
-
-          execute "Fix ownere and group on folders" do
-            command "chown -R #{apache_owner}:#{apache_group} /var/www/vhosts/#{site_name}/releases/init"
-          end
-
-          execute "Fix permissions on folders" do
-            command "chmod -Rf 775 /var/www/vhosts/#{site_name}/releases/init"
-          end
-        end
-
-
-        link "/var/www/vhosts/#{site_name}/current" do
-          owner apache_owner
-          group apache_group
-          to "/var/www/vhosts/#{site_name}/releases/init"
-          not_if { ::File.directory?(full_site['deploy_path']) }
+      letsencrypt_selfsigned full_site['url'] do
+        crt "/etc/ssl/#{site_name}.crt"
+        key "/etc/ssl/#{site_name}.key"
+        chain "/etc/ssl/#{site_name}.pem"
+        owner apache_owner
+        group apache_group
+        notifies :restart, 'service[apache2]', :immediate
+        not_if do
+          ::File.exists?("/etc/ssl/#{site_name}.crt")
         end
       end
 
@@ -213,10 +204,13 @@ sites.each do |site_name|
       letsencrypt_certificate full_site['url'] do
         crt "/etc/ssl/#{site_name}.crt"
         key "/etc/ssl/#{site_name}.key"
+        chain "/etc/ssl/#{site_name}.pem"
         method 'http'
         owner apache_owner
         group apache_group
-        wwwroot "#{full_site['deploy_path']}/client/build"
+        #alt_names ["www.#{full_site['url']}"]
+        wwwroot "/var/www/vhosts/#{site_name}/letsencrypt"
+        notifies :restart, 'service[apache2]', :immediate
       end
 
     end
