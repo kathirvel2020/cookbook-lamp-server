@@ -158,6 +158,23 @@ sites.each do |site_name|
         mode '0664'
         variables :params => full_site.to_hash
       end
+
+      # Also include supervisor and it's config file
+      include_recipe 'supervisor::default'
+
+      supervisor_service 'laravel-worker' do
+        action :enable
+        autostart true
+        process_name '%(program_name)s_%(process_num)02d'
+        command "php /var/www/vhosts/#{site_name}/current/server/artisan queue:listen --sleep=3 --tries=3"
+        autostart true
+        autorestart true
+        user 'deploy'
+        numprocs 8
+        redirect_stderr true
+        stdout_logfile "/var/log/supervisor/laravel-worker.log"
+      end
+
     elsif full_site['type'] == 'wordpress'
       template "#{full_site['shared_path']}/wp-config.php" do
         action :create_if_missing
