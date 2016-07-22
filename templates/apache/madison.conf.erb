@@ -1,5 +1,8 @@
 <VirtualHost *:<%= @params[:ssl] ? '443' : '80' %>>
   ServerName <%= @params[:server_name] %>
+  <% if @params[:server_aliases] %>
+  ServerAlias <%= @params[:server_aliases].join(' ') %>
+  <% end %>
   DocumentRoot <%= @params[:docroot] %>/current/client/build
   Alias /api <%= @params[:docroot] %>/current/server/public/index.php/api
 
