@@ -6,7 +6,7 @@ description      'Installs/Configures a LAMP server'
 long_description 'Installs/Configures a LAMP server'
 version          '0.1.21'
 
-depends 'base-server', '0.1.1'
+depends 'base-server', '0.1.2'
 depends 'chef-vault'
 depends 'rvm'
 depends 'mariadb'
