@@ -26,3 +26,17 @@ apache_module 'mpm_prefork'
 apache_module 'mpm_event' do
   enable false
 end
+
+# For RHEL remove the mpm prefork load because apache does this automatically
+# for us, and the load file references a .so module that doesn't exist.
+# TODO: You might need to do this for SUSE also.
+
+case node['platform_family']
+when 'rhel', 'fedora'
+	load_file = '/etc/httpd/mods-enabled/mpm_prefork.load'
+
+	link load_file do
+		action :delete
+		notifies :restart, 'service[apache2]', :immediately
+	end
+end
