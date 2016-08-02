@@ -4,7 +4,7 @@ maintainer_email 'developers@opengovfoundation.org'
 license          'CC0'
 description      'Installs/Configures a LAMP server'
 long_description 'Installs/Configures a LAMP server'
-version          '0.1.20'
+version          '0.1.21'
 
 depends 'base-server', '0.1.1'
 depends 'chef-vault'

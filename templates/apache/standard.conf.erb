@@ -1,4 +1,4 @@
-<VirtualHost *:80>
+<VirtualHost *:<%= @params[:ssl] ? '443' : '80' %>>
   ServerName <%= @params[:server_name] %>
   <% if @params[:server_aliases] %>
   ServerAlias <%= @params[:server_aliases].join(' ') %>
@@ -12,7 +12,42 @@
     Allow from all
   </Directory>
 
+  <% if @params[:ssl] %>
+  SSLEngine on
+  SSLCertificateFile /etc/ssl/<%= @params[:server_name] %>.crt
+  SSLCertificateKeyFile /etc/ssl/<%= @params[:server_name] %>.key
+  SSLCertificateChainFile /etc/ssl/<%= @params[:server_name] %>.pem
+  <% end %>
+
   LogLevel info
   ErrorLog /var/log/httpd/<%= @params[:name] %>-error.log
   CustomLog /var/log/httpd/<%= @params[:name] %>-access.log combined
 </VirtualHost>
+<% if @params[:ssl] %>
+<VirtualHost *:80>
+  ServerName <%= @params[:server_name] %>
+  DocumentRoot <%= @params[:docroot] %>/letsencrypt
+
+  RewriteEngine On
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{REQUEST_URI} !acme-challenge
+  RewriteRule ^/?(.*) https://%{SERVER_NAME}/$1 [R,L]
+
+  <Directory <%= @params[:docroot] %>/letsencrypt>
+    Options Indexes FollowSymLinks
+    DirectoryIndex index.html
+    AllowOverride all
+
+    <IfVersion >= 2.4>
+      Require all granted
+    </IfVersion>
+    <IfVersion < 2.4>
+      Order allow,deny
+      Allow from all
+    </IfVersion>
+  </Directory>
+
+  ErrorLog /var/log/apache2/<%= @params[:name] %>-letencrypt-error.log
+  CustomLog /var/log/apache2/<%= @params[:name] %>-letsencrypt-access.log combined
+</VirtualHost>
+<% end %>

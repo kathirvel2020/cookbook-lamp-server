@@ -192,8 +192,9 @@ sites.each do |site_name|
     if full_site['ssl']
 
       # DEBUG staging endpoint
-      node.default['letsencrypt']['endpoint'] = 'https://acme-v01.api.letsencrypt.org'
-      node.default['letsencrypt']['contact'] = 'mailto:bill@opengovfoundation.org'
+      # node.default['letsencrypt']['endpoint'] = 'https://acme-v01.api.letsencrypt.org'
+
+      node.default['letsencrypt']['contact'] = "mailto:#{full_site['admin_email']}"
 
       include_recipe 'letsencrypt::default'
 
