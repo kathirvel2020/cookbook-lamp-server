@@ -75,11 +75,25 @@ sites.each do |site_name|
         action :create
       end
 
+      directory "/var/www/vhosts/#{site_name}/releases/init" do
+        owner apache_owner
+        group apache_group
+        mode '0775'
+        action :create
+      end
+
       directory "/var/www/vhosts/#{site_name}/shared" do
         owner apache_owner
         group apache_group
         mode '0775'
         action :create
+      end
+
+      # Create a temporary folder for the current realease if there isn't one
+      # already. Apache won't start if the webroot references a missing folder.
+      link "/var/www/vhosts/#{site_name}/current" do
+        to "/var/www/vhosts/#{site_name}/releases/init"
+        not_if "test -L /var/www/vhosts/#{site_name}/current"
       end
     end
 
@@ -166,7 +180,7 @@ sites.each do |site_name|
         action :enable
         autostart true
         process_name '%(program_name)s_%(process_num)02d'
-        command "php /var/www/vhosts/#{site_name}/current/server/artisan queue:listen --sleep=3 --tries=3"
+        command "php #{full_site['deploy_path']}/server/artisan queue:listen --sleep=3 --tries=3"
         autostart true
         autorestart true
         user 'deploy'
