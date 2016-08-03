@@ -207,22 +207,22 @@ sites.each do |site_name|
       end
 
       letsencrypt_selfsigned full_site['url'] do
-        crt "/etc/ssl/#{site_name}.crt"
-        key "/etc/ssl/#{site_name}.key"
-        chain "/etc/ssl/#{site_name}.pem"
+        crt "/etc/ssl/#{full_site['url']}.crt"
+        key "/etc/ssl/#{full_site['url']}.key"
+        chain "/etc/ssl/#{full_site['url']}.pem"
         owner apache_owner
         group apache_group
         notifies :restart, 'service[apache2]', :immediate
         not_if do
-          ::File.exists?("/etc/ssl/#{site_name}.crt")
+          ::File.exists?("/etc/ssl/#{full_site['url']}.crt")
         end
       end
 
       # Add Let's Encrypt Certs.
       letsencrypt_certificate full_site['url'] do
-        crt "/etc/ssl/#{site_name}.crt"
-        key "/etc/ssl/#{site_name}.key"
-        chain "/etc/ssl/#{site_name}.pem"
+        crt "/etc/ssl/#{full_site['url']}.crt"
+        key "/etc/ssl/#{full_site['url']}.key"
+        chain "/etc/ssl/#{full_site['url']}.pem"
         method 'http'
         owner apache_owner
         group apache_group
