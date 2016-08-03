@@ -20,8 +20,8 @@
   <% end %>
 
   LogLevel info
-  ErrorLog /var/log/httpd/<%= @params[:name] %>-error.log
-  CustomLog /var/log/httpd/<%= @params[:name] %>-access.log combined
+  ErrorLog <%= node['apache']['log_dir'] %>/<%= @params[:name] %>-error.log
+  CustomLog <%= node['apache']['log_dir'] %>/<%= @params[:name] %>-access.log combined
 </VirtualHost>
 <% if @params[:ssl] %>
 <VirtualHost *:80>
@@ -47,7 +47,7 @@
     </IfVersion>
   </Directory>
 
-  ErrorLog /var/log/apache2/<%= @params[:name] %>-letencrypt-error.log
-  CustomLog /var/log/apache2/<%= @params[:name] %>-letsencrypt-access.log combined
+  ErrorLog <%= node['apache']['log_dir'] %>/<%= @params[:name] %>-letencrypt-error.log
+  CustomLog <%= node['apache']['log_dir'] %>/<%= @params[:name] %>-letsencrypt-access.log combined
 </VirtualHost>
 <% end %>

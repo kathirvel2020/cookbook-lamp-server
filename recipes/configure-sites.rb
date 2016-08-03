@@ -82,6 +82,16 @@ sites.each do |site_name|
         action :create
       end
 
+      if full_site['type'] == 'madison'
+        directory "/var/www/vhosts/#{site_name}/releases/init/client/build" do
+          owner apache_owner
+          group apache_group
+          mode '0775'
+          recursive true
+          action :create
+        end
+      end
+
       directory "/var/www/vhosts/#{site_name}/shared" do
         owner apache_owner
         group apache_group
