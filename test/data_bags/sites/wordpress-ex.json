@@ -1,0 +1,12 @@
+{
+  "name": "Wordpress Example",
+  "shortname": "wordpress",
+  "url": "wordpress.example.com",
+  "aliases": ["wp.example.com"],
+  "servers": ["default-ubuntu-1404","default-centos-67"],
+  "admin_email": "developers@opengovfoundation.org",
+  "type": "wordpress",
+  "database_name": "wordpress",
+  "database_password": "jklzasdf",
+  "database_username": "wordpress"
+}

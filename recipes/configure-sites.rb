@@ -200,13 +200,46 @@ sites.each do |site_name|
       end
 
     elsif full_site['type'] == 'wordpress'
+      # This was taken from the Wordpress cookbook.  Unfortunately, that
+      # cookbook wants to do other things for us that we don't want, so we
+      # do this manually instead.
+      ::Chef::Recipe.send(:include, Opscode::OpenSSL::Password)
+      node.set_unless['wordpress']['keys']['auth'] = secure_password
+      node.set_unless['wordpress']['keys']['secure_auth'] = secure_password
+      node.set_unless['wordpress']['keys']['logged_in'] = secure_password
+      node.set_unless['wordpress']['keys']['nonce'] = secure_password
+      node.set_unless['wordpress']['salt']['auth'] = secure_password
+      node.set_unless['wordpress']['salt']['secure_auth'] = secure_password
+      node.set_unless['wordpress']['salt']['logged_in'] = secure_password
+      node.set_unless['wordpress']['salt']['nonce'] = secure_password
+      node.save unless Chef::Config[:solo]
+
       template "#{full_site['shared_path']}/wp-config.php" do
         action :create_if_missing
-        source 'site/madison/wp-config.php.erb'
+        source 'site/wordpress/wp-config.php.erb'
         owner 'www'
         group 'staff'
         mode '0664'
-        variables :params => full_site.to_hash
+        variables(
+          :db_name           => database_name,
+          :db_user           => database_user,
+          :db_password       => database_password,
+          :db_host           => node['wordpress']['db']['host'],
+          :db_prefix         => node['wordpress']['db']['prefix'],
+          :db_charset        => node['wordpress']['db']['charset'],
+          :db_collate        => node['wordpress']['db']['collate'],
+          :auth_key          => node['wordpress']['keys']['auth'],
+          :secure_auth_key   => node['wordpress']['keys']['secure_auth'],
+          :logged_in_key     => node['wordpress']['keys']['logged_in'],
+          :nonce_key         => node['wordpress']['keys']['nonce'],
+          :auth_salt         => node['wordpress']['salt']['auth'],
+          :secure_auth_salt  => node['wordpress']['salt']['secure_auth'],
+          :logged_in_salt    => node['wordpress']['salt']['logged_in'],
+          :nonce_salt        => node['wordpress']['salt']['nonce'],
+          :lang              => node['wordpress']['languages']['lang'],
+          :allow_multisite   => node['wordpress']['allow_multisite'],
+          :wp_config_options => node['wordpress']['wp_config_options']
+        )
       end
     end
 
