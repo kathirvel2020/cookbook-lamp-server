@@ -20,7 +20,8 @@ include_recipe 'apache2'
 include_recipe 'apache2::mod_rewrite'
 include_recipe 'apache2::mod_php5'
 include_recipe 'apache2::mod_ssl'
-include_recipe 'apache2::mod_version'
+# This one throws an error on Ubuntu if we try to include it.
+include_recipe 'apache2::mod_version' if ['rhel', 'fedora'].include?(node['platform_family'])
 
 # Disable threaded mpm
 apache_module 'mpm_prefork'
