@@ -44,7 +44,13 @@ end
 
 sites.each do |site_name|
   # Get the users' real data from the vault.
-  full_site = chef_vault_item('sites', site_name)
+  begin
+    Chef::EncryptedDataBagItem.load_secret
+  rescue
+    full_site = Chef::DataBagItem.load('sites', site_name)
+  else
+    full_site = Chef::EncryptedDataBagItem.load('sites', site_name).to_hash
+  end
 
   # If the node is one this site belongs to, set it up on the box.
   if full_site['servers'] and full_site['servers'].include? node.name
@@ -60,14 +66,10 @@ sites.each do |site_name|
     end
 
     # Setup some config values.
-
-    # If this is a Madison site, we always deploy with rollback.
-    if full_site['type'] == 'madison'
-      full_site['uses_rollback'] = true
-    end
+    uses_rollback = full_site['type'] == 'madison' || full_site['uses_rollback']
 
     # If the site uses rollback, we have a releases directory.
-    if full_site['uses_rollback']
+    if uses_rollback
       directory "/var/www/vhosts/#{site_name}/releases" do
         owner apache_owner
         group apache_group
@@ -109,7 +111,7 @@ sites.each do |site_name|
 
     # Our deployment path changes to add releases if we have rollback.
     if !full_site['deploy_path']
-      if full_site['uses_rollback']
+      if uses_rollback
         full_site['deploy_path'] = "/var/www/vhosts/#{site_name}/current"
         full_site['shared_path'] = "/var/www/vhosts/#{site_name}/shared"
       else
