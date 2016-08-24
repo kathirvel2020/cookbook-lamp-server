@@ -77,22 +77,26 @@ sites.each do |site_name|
         action :create
       end
 
-      directory "/var/www/vhosts/#{site_name}/releases/init" do
-        owner apache_owner
-        group apache_group
-        mode '0775'
-        action :create
-      end
+      # TODO: The code for this `init` folder causes some issues with capistrano
+      # release cleanup. It doesn't appear to be necessary on Ubuntu 14.04, but
+      # might be an issue on other OS's. Leaving it commented out for now.
 
-      if full_site['type'] == 'madison'
-        directory "/var/www/vhosts/#{site_name}/releases/init/client/build" do
-          owner apache_owner
-          group apache_group
-          mode '0775'
-          recursive true
-          action :create
-        end
-      end
+      #directory "/var/www/vhosts/#{site_name}/releases/init" do
+      #  owner apache_owner
+      #  group apache_group
+      #  mode '0775'
+      #  action :create
+      #end
+
+      #if full_site['type'] == 'madison'
+      #  directory "/var/www/vhosts/#{site_name}/releases/init/client/build" do
+      #    owner apache_owner
+      #    group apache_group
+      #    mode '0775'
+      #    recursive true
+      #    action :create
+      #  end
+      #end
 
       directory "/var/www/vhosts/#{site_name}/shared" do
         owner apache_owner
@@ -103,10 +107,10 @@ sites.each do |site_name|
 
       # Create a temporary folder for the current realease if there isn't one
       # already. Apache won't start if the webroot references a missing folder.
-      link "/var/www/vhosts/#{site_name}/current" do
-        to "/var/www/vhosts/#{site_name}/releases/init"
-        not_if "test -L /var/www/vhosts/#{site_name}/current"
-      end
+      #link "/var/www/vhosts/#{site_name}/current" do
+      #  to "/var/www/vhosts/#{site_name}/releases/init"
+      #  not_if "test -L /var/www/vhosts/#{site_name}/current"
+      #end
     end
 
     # Our deployment path changes to add releases if we have rollback.
