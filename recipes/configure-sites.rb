@@ -192,7 +192,7 @@ sites.each do |site_name|
       # Also include supervisor and it's config file
       include_recipe 'supervisor::default'
 
-      supervisor_service 'laravel-worker' do
+      supervisor_service "#{site_name}-laravel-worker" do
         action :enable
         autostart true
         process_name '%(program_name)s_%(process_num)02d'
@@ -202,7 +202,7 @@ sites.each do |site_name|
         user 'deploy'
         numprocs 8
         redirect_stderr true
-        stdout_logfile "/var/log/supervisor/laravel-worker.log"
+        stdout_logfile "/var/log/supervisor/#{site_name}-laravel-worker.log"
       end
 
     elsif full_site['type'] == 'wordpress'
